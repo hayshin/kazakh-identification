@@ -9,10 +9,14 @@ tokrex = TokenizeRex()
 landetector = LidNB(char_mdl=os.path.join('kaznlp', 'lid', 'char.mdl'))
 
 class KazNLP(Model):
-    def detect_lang_single(txt: str) -> Language:
+    def detect_lang_single(self, txt: str) -> Language:
         txt_lang = landetector.predict(tokrex.tokenize(txt, lower=True)[0])
         return txt_lang
 
-    def detect_lang_probabilities(txt: str) -> LangDetectorChoices:
+    def detect_lang_probabilities(self, txt: str) -> LangDetectorChoices:
         txt_lang = landetector.predict_wp(tokrex.tokenize(txt, lower=True)[0])
-        return {lang: prob for lang, prob in txt_lang.items() if lang != 'result'}
+        response = {lang: prob for lang, prob in txt_lang.items()}
+        response["primary_lang"] = response['result']
+        del response['result']
+        return response
+        

@@ -30,6 +30,9 @@ def read_root():
             "llm": {
                 "/llm/detect": "Detect primary language using LLM model",
                 "/llm/probabilities": "Get language probabilities using LLM model",
+            },
+            "all": {
+                "/all/probabilities": "Get language probabilities from all models at once",
             }
         }
     }
@@ -75,3 +78,44 @@ def llm_language_probabilities(input_data: TextInput) -> LangDetectorChoices:
         return probabilities
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating probabilities: {str(e)}")
+
+
+# All models routes
+class ModelResult(BaseModel):
+    """Result from a single model."""
+    model: str
+    result: Union[LangDetectorChoices, dict]
+
+
+@app.post("/all/probabilities", response_model=list)
+def all_models_probabilities(input_data: TextInput) -> list:
+    """Get language detection probabilities from all models at once."""
+    results = []
+    
+    # Get KazNLP probabilities
+    try:
+        kaznlp_probs = kaznlp_model.detect_lang_probabilities(input_data.text)
+        results.append({
+            "model": "kaznlp",
+            "result": kaznlp_probs
+        })
+    except Exception as e:
+        results.append({
+            "model": "kaznlp",
+            "error": f"Error calculating probabilities: {str(e)}"
+        })
+    
+    # Get LLM probabilities
+    try:
+        llm_probs = llm_model.detect_lang_probabilities(input_data.text)
+        results.append({
+            "model": "llm",
+            "result": llm_probs
+        })
+    except Exception as e:
+        results.append({
+            "model": "llm",
+            "error": f"Error calculating probabilities: {str(e)}"
+        })
+    
+    return results
