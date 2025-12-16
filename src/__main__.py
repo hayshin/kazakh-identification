@@ -8,6 +8,7 @@ from src.models.kaznlp import KazNLP
 from src.models.llm import LLM
 from src.models.fasttext import FastText
 from src.models.knn import KNN
+from src.models.bilstm import BiLSTM
 
 app = FastAPI(title="Kazakh Language Identification API")
 
@@ -16,6 +17,7 @@ kaznlp_model = KazNLP()
 llm_model = LLM()
 fasttext_model = FastText()
 knn_model = KNN()
+bilstm_model = BiLSTM()
 
 # Model registry with weights for ensembling
 models_config = [
@@ -23,6 +25,7 @@ models_config = [
     {"name": "llm", "model": llm_model, "weight": 1.0},
     {"name": "fasttext", "model": fasttext_model, "weight": 1.0},
     {"name": "knn", "model": knn_model, "weight": 1.0},
+    {"name": "bilstm", "model": bilstm_model, "weight": 1.0},
 ]
 
 
@@ -50,6 +53,10 @@ def read_root():
             "knn": {
                 "/knn/detect": "Detect primary language using KNN model",
                 "/knn/probabilities": "Get language probabilities using KNN model",
+            },
+            "bilstm": {
+                "/bilstm/detect": "Detect primary language using BiLSTM model",
+                "/bilstm/probabilities": "Get language probabilities using BiLSTM model",
             },
             "all": {
                 "/all/probabilities": "Get language probabilities from all models at once",
@@ -137,6 +144,27 @@ def knn_language_probabilities(input_data: TextInput) -> LangDetectorChoices:
     """Get language detection probabilities for the input text using KNN model."""
     try:
         probabilities = knn_model.detect_lang_probabilities(input_data.text)
+        return probabilities
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error calculating probabilities: {str(e)}")
+
+
+# BiLSTM routes
+@app.post("/bilstm/detect", response_model=dict)
+def bilstm_detect_language(input_data: TextInput) -> dict:
+    """Detect the primary language of the input text using BiLSTM model."""
+    try:
+        language = bilstm_model.detect_lang_single(input_data.text)
+        return {"text": input_data.text, "language": language}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error detecting language: {str(e)}")
+
+
+@app.post("/bilstm/probabilities", response_model=LangDetectorChoices)
+def bilstm_language_probabilities(input_data: TextInput) -> LangDetectorChoices:
+    """Get language detection probabilities for the input text using BiLSTM model."""
+    try:
+        probabilities = bilstm_model.detect_lang_probabilities(input_data.text)
         return probabilities
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating probabilities: {str(e)}")
