@@ -5,7 +5,7 @@ from transformers import DistilBertForSequenceClassification, DistilBertTokenize
 
 from src.models.base import Model, LangDetectorChoices, Language
 
-model_path = os.path.join('data', 'lid_model')
+model_path = os.path.join('data', 'models', 'transformer-bert')
 
 print(f"Загружаю модель из {model_path}...")
 model = DistilBertForSequenceClassification.from_pretrained(model_path)
@@ -58,10 +58,8 @@ def predict_language(text, temperature=2):
         "primary_lang": predicted_label, 
         "kazakh": prob_kk, 
         "russian": prob_ru,
-        "other": 0.00
+        "other": 1 - (prob_kk + prob_ru),
     }
-
-
 
 
 class KazNLP(Model):
