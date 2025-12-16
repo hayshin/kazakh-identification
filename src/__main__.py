@@ -1,7 +1,9 @@
-from typing import Union
+from typing import Union, Optional, Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
+from agno.models.openai import OpenAIChat
+from agno.models.ollama import Ollama
 
 from src.models.base import LangDetectorChoices, Language
 from src.models.kaznlp import KazNLP
@@ -9,6 +11,9 @@ from src.models.llm import LLM
 from src.models.fasttext import FastText
 from src.models.knn import KNN
 from src.models.bilstm import BiLSTM
+from src.agents.araline_en import create_agent_araline_en
+from src.agents.araline_kk import create_agent_araline_kk
+from src.agents.araline_ru import create_agent_araline_ru
 
 app = FastAPI(title="Kazakh Language Identification API")
 
@@ -22,7 +27,7 @@ bilstm_model = BiLSTM()
 # Model registry with weights for ensembling
 models_config = [
     {"name": "kaznlp", "model": kaznlp_model, "weight": 1.0},
-    {"name": "llm", "model": llm_model, "weight": 1.0},
+    # {"name": "llm", "model": llm_model, "weight": 1.0},
     {"name": "fasttext", "model": fasttext_model, "weight": 1.0},
     {"name": "knn", "model": knn_model, "weight": 1.0},
     {"name": "bilstm", "model": bilstm_model, "weight": 1.0},
@@ -31,6 +36,11 @@ models_config = [
 
 class TextInput(BaseModel):
     text: str
+
+
+class ChatInput(BaseModel):
+    message: str
+    model: Literal["gpt-5-mini", "gpt-5-nano", "local"] = "gpt-5-mini"
 
 
 @app.get("/")
@@ -60,6 +70,9 @@ def read_root():
             },
             "all": {
                 "/all/probabilities": "Get language probabilities from all models at once",
+            },
+            "chat": {
+                "/chat": "Send message to Araline chatbot with language detection and dual-agent response",
             }
         }
     }
@@ -231,3 +244,54 @@ def all_models_probabilities(input_data: TextInput) -> dict:
             "weight_sum": total_weight,
         },
     }
+
+
+# Chat route with language detection and dual-agent response
+@app.post("/chat")
+async def chat_with_araline(input_data: ChatInput) -> dict:
+    """
+    Send message to Araline chatbot with automatic language detection.
+    Returns responses from both English agent and user-language agent.
+    """
+    try:
+        # Step 1: Detect language using ensemble
+        ensemble_result = all_models_probabilities(TextInput(text=input_data.message))
+        detected_lang = ensemble_result["ensemble"]["primary_lang"]
+        
+        # Step 2: Select model based on input
+        if input_data.model == "gpt-5-mini":
+            model = OpenAIChat(id="gpt-5-mini")
+        elif input_data.model == "gpt-5-nano":
+            model = OpenAIChat(id="gpt-5-nano")
+        elif input_data.model == "local":
+            model = Ollama(id="gemma3")
+        else:
+            model = OpenAIChat(id="gpt-5-mini")
+        
+        # Step 3: Create agents with selected model
+        agent_en = await create_agent_araline_en(model=model)
+        
+        # Select language-specific agent based on detection
+        if detected_lang == "kazakh":
+            agent_lang = await create_agent_araline_kk(model=model)
+        elif detected_lang == "russian":
+            agent_lang = await create_agent_araline_ru(model=model)
+        else:
+            # Default to English for "other"
+            agent_lang = await create_agent_araline_en(model=model)
+        
+        # Step 4: Get responses from both agents
+        response_en = agent_en.run(input=input_data.message)
+        response_lang = agent_lang.run(input=input_data.message)
+        
+        return {
+            "detected_language": detected_lang,
+            "language_probabilities": ensemble_result["ensemble"]["probabilities"],
+            "model_used": input_data.model,
+            "responses": {
+                "english": response_en.content if hasattr(response_en, 'content') else str(response_en),
+                "user_language": response_lang.content if hasattr(response_lang, 'content') else str(response_lang),
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing chat: {str(e)}")

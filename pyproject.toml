@@ -11,6 +11,7 @@ dependencies = [
     "fasttext>=0.9.3",
     "google-genai>=1.55.0",
     "joblib>=1.5.3",
+    "ollama>=0.6.1",
     "openai>=2.12.0",
     "scikit-learn==1.7.2",
     "sqlalchemy>=2.0.45",
