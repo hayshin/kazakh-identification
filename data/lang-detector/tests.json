@@ -1,0 +1,155 @@
+{
+  "tests": [
+    {
+      "input": "Запиши меня к врачу",
+      "expected_lang": "russian"
+    },
+    {
+      "input": "Кардиологпен кездесуге жазылыңыз",
+      "expected_lang": "kazakh"
+    },
+    {
+      "input": "Менде жогары температура",
+      "expected_lang": "kazakh"
+    },
+    {
+      "input": "When the doctor will available?",
+      "expected_lang": "other"
+    },
+    {
+      "input": "Менде ауру бар",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: казахский текст русским алфавитом"
+    },
+    {
+      "input": "Деригерге кездесу керек",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: дәрігер написано как 'деригер'"
+    },
+    {
+      "input": "Сенде кандай сыздану бар?",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: вопрос с казахскими словами"
+    },
+    {
+      "input": "Жогары басым бар",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: медицинский термин на казахском"
+    },
+    {
+      "input": "Температура жогары",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: казахское слово 'жогары' в русском тексте"
+    },
+    {
+      "input": "Кардиологка жазылгым келеды",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: сложная казахская грамматика русским алфавитом"
+    },
+    {
+      "input": "Емделу керек",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: короткий казахский текст"
+    },
+    {
+      "input": "Менде бас ауруы бар",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: головная боль"
+    },
+    {
+      "input": "Докторга барайын ба?",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: вопрос с казахской грамматикой"
+    },
+    {
+      "input": "Журек ауруы",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: сердечная боль"
+    },
+    {
+      "input": "Нужна консультация кардиолога",
+      "expected_lang": "russian",
+      "description": "Русский: медицинский термин"
+    },
+    {
+      "input": "Болит голова",
+      "expected_lang": "russian",
+      "description": "Русский: короткий текст"
+    },
+    {
+      "input": "Хочу записаться к терапевту",
+      "expected_lang": "russian",
+      "description": "Русский: запись к врачу"
+    },
+    {
+      "input": "Менде жогары температура, нужна помощь",
+      "expected_lang": "kazakh",
+      "description": "Смешанный текст: казахский + русский, доминирует казахский"
+    },
+    {
+      "input": "Запиши меня к кардиологка",
+      "expected_lang": "russian",
+      "description": "Смешанный текст: русский с казахским окончанием, доминирует русский"
+    },
+    {
+      "input": "Доктор керек",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: очень короткий текст"
+    },
+    {
+      "input": "Ауру",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: одно слово"
+    },
+    {
+      "input": "Merhaba, doktor randevusu almak istiyorum",
+      "expected_lang": "other",
+      "description": "Турецкий язык"
+    },
+    {
+      "input": "Shifokorga yozilmoqchiman",
+      "expected_lang": "other",
+      "description": "Узбекский язык"
+    },
+    {
+      "input": "Bonjour, j'ai besoin d'un médecin",
+      "expected_lang": "other",
+      "description": "Французский язык"
+    },
+    {
+      "input": "Менде бас ауруы бар, температура жогары",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: длинный текст с несколькими казахскими словами"
+    },
+    {
+      "input": "Кездесуге жазылгым келеды",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: запись на прием"
+    },
+    {
+      "input": "Сыздану бар ма?",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: вопрос о жалобах"
+    },
+    {
+      "input": "Томография жасаткым келеды",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: медицинская процедура"
+    },
+    {
+      "input": "Анализ нтижеси керек",
+      "expected_lang": "kazakh",
+      "description": "Шала-казахский: результат анализа (с опечаткой 'нт' вместо 'на')"
+    },
+    {
+      "input": "123",
+      "expected_lang": "other",
+      "description": "Только цифры - недостаточно информации"
+    },
+    {
+      "input": "???",
+      "expected_lang": "other",
+      "description": "Только символы - недостаточно информации"
+    }
+  ]
+}
