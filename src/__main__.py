@@ -286,12 +286,11 @@ async def chat_with_araline(
         
         # Step 4: Get responses from both agents in parallel
         # Use static user_id and provided session_id for conversation context
-        user_id = "araline-api-user"
         response_en_task = asyncio.create_task(
-            asyncio.to_thread(agent_en.run, input=input_data.message, user_id=user_id, session_id=session_id)
+            asyncio.to_thread(agent_en.run, input=input_data.message, user_id="araline-en-user", session_id=session_id)
         )
         response_lang_task = asyncio.create_task(
-            asyncio.to_thread(agent_lang.run, input=input_data.message, user_id=user_id, session_id=session_id)
+            asyncio.to_thread(agent_lang.run, input=input_data.message, user_id="araline-lang-user", session_id=session_id)
         )
         
         response_en, response_lang = await asyncio.gather(response_en_task, response_lang_task)
