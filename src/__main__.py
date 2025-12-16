@@ -1,4 +1,5 @@
 from typing import Union, Optional, Literal
+import asyncio
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
@@ -248,7 +249,10 @@ def all_models_probabilities(input_data: TextInput) -> dict:
 
 # Chat route with language detection and dual-agent response
 @app.post("/chat")
-async def chat_with_araline(input_data: ChatInput) -> dict:
+async def chat_with_araline(
+    input_data: ChatInput,
+    session_id: Optional[str] = Query(default=None, description="Session ID for conversation tracking")
+) -> dict:
     """
     Send message to Araline chatbot with automatic language detection.
     Returns responses from both English agent and user-language agent.
@@ -280,14 +284,23 @@ async def chat_with_araline(input_data: ChatInput) -> dict:
             # Default to English for "other"
             agent_lang = await create_agent_araline_en(model=model)
         
-        # Step 4: Get responses from both agents
-        response_en = agent_en.run(input=input_data.message)
-        response_lang = agent_lang.run(input=input_data.message)
+        # Step 4: Get responses from both agents in parallel
+        # Use static user_id and provided session_id for conversation context
+        user_id = "araline-api-user"
+        response_en_task = asyncio.create_task(
+            asyncio.to_thread(agent_en.run, input=input_data.message, user_id=user_id, session_id=session_id)
+        )
+        response_lang_task = asyncio.create_task(
+            asyncio.to_thread(agent_lang.run, input=input_data.message, user_id=user_id, session_id=session_id)
+        )
+        
+        response_en, response_lang = await asyncio.gather(response_en_task, response_lang_task)
         
         return {
             "detected_language": detected_lang,
             "language_probabilities": ensemble_result["ensemble"]["probabilities"],
             "model_used": input_data.model,
+            "session_id": session_id,
             "responses": {
                 "english": response_en.content if hasattr(response_en, 'content') else str(response_en),
                 "user_language": response_lang.content if hasattr(response_lang, 'content') else str(response_lang),

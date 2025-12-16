@@ -1,5 +1,4 @@
 from agno.models.openai import OpenAIChat
-from agno.models.google import Gemini
 from agno.db.sqlite import SqliteDb
 from agno.agent import Agent as AgnoAgent
 from agno.db.in_memory import InMemoryDb
