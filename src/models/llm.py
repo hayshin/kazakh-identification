@@ -9,7 +9,7 @@ class LLM(Model):
     
     def ask_agent(self, txt: str) -> LangDetectorChoices:
         response = self.agent.run(input=txt)
-        return LangDetectorChoices.parse_raw(response)
+        return response.content
 
     def detect_lang_single(self, txt: str) -> Language:
         return self.ask_agent(txt).primary_lang

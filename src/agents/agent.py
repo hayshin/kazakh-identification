@@ -58,7 +58,7 @@ def create_agent_from_config(
 
     # Create model if not provided
     if model is None:
-        model = Gemini(id="gemini-2.0-flash")
+        model = OpenAIChat(id="gpt-5-mini")
 
     # Create agent
     agent = AgnoAgent(
